@@ -1,0 +1,77 @@
+/*
+ * The MIT License (MIT)
+ * Copyright (c) 2014 He Xiaocong (xiaocong@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+apply plugin: 'com.android.application'
+
+def getProdVersionCode() {
+    def date = new Date()
+    def version = (date.year - 100) * 10000 + (date.month + 1) * 100 + date.date
+    return version
+}
+
+def getProdVersionName() {
+    def versionName = String.format("%s.%d", "1", getProdVersionCode())
+    return versionName
+}
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
+    lintOptions {
+        abortOnError false
+    }
+    defaultConfig {
+        applicationId "org.tecrash.crashreport"
+        minSdkVersion 14
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+        prod {
+            versionCode getProdVersionCode()
+            versionName getProdVersionName()
+            applicationId 'com.xinqitec.crashreport'
+        }
+        dev {
+            applicationId 'org.tecrash.crashreport.development'
+            versionCode getProdVersionCode()
+            versionName getProdVersionName()
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:support-v4:21.0.0'
+    compile 'com.path:android-priority-jobqueue:1.1.2'
+    compile 'com.squareup.retrofit:retrofit:1.6.1'
+    compile 'com.squareup.okhttp:okhttp:2.0.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
+}
