@@ -69,11 +69,10 @@ import retrofit.mime.TypedFile;
 public class DropboxUploadingJob extends Job {
     static final int MAX_DIG_LEN = 2 * 1024;
     static Logger logger = Logger.getLogger();
-    private String tag;
     private long timestamp;
     private String incremental;
 
-    public DropboxUploadingJob(String tag, long timestamp, String incremental) {
+    public DropboxUploadingJob(long timestamp, String incremental) {
         super(new Params(100)
                         .requireNetwork()
                         .setGroupId("Dropbox")
@@ -81,7 +80,6 @@ public class DropboxUploadingJob extends Job {
                         .setDelayMs(Util.getMaxDelayTimes())
         );
 
-        this.tag = tag;
         this.timestamp = timestamp;
         this.incremental = incremental;
     }
@@ -92,7 +90,7 @@ public class DropboxUploadingJob extends Job {
 
     @Override
     public void onRun() throws Throwable {
-        long last = Util.getLastEntryTimestamp(tag);  // 获得上次发送的时间
+        long last = Util.getLastEntryTimestamp();  // 获得上次发送的时间
         if (!Build.VERSION.INCREMENTAL.equals(incremental)) {
             // 升级前的drpbox entry，那本次开机前的都舍弃掉
             long bootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
@@ -105,35 +103,39 @@ public class DropboxUploadingJob extends Job {
         }
         if (!Util.isEnabled()) {
             logger.d("Disabled so cancel it!");
-            Util.setLastEntryTimestamp(tag, last);
+            Util.setLastEntryTimestamp(last);
             return;
         }
 
         DropBoxManager dbm = (DropBoxManager) ReportApp.getInstance().getSystemService(Context.DROPBOX_SERVICE);
         List<ReportDatas.Entry> datas = new ArrayList<ReportDatas.Entry>();
         List<Long> timestamps = new ArrayList<Long>();
+        List<String> tags = new ArrayList<String>();
 
-        DropBoxManager.Entry entry = dbm.getNextEntry(tag, last);
-        while (entry != null) {
-            ReportDatas.Entry data = convertToReportEntry(entry);
-            if (data != null) {
-                boolean found = false;
-                for (ReportDatas.Entry d : datas) {
-                    if (d.tag.equals(data.tag) && d.app.equals(data.app)) {
-                        d.data.count += data.data.count;
-                        if (d.data.count > 5)
-                            d.data.count = 5;
-                        found = true;
-                        break;
+        for (String tag: Util.getTags().keySet()) {
+            DropBoxManager.Entry entry = dbm.getNextEntry(tag, last);
+            while (entry != null) {
+                ReportDatas.Entry data = convertToReportEntry(entry);
+                if (data != null) {
+                    boolean found = false;
+                    for (ReportDatas.Entry d : datas) {
+                        if (d.tag.equals(data.tag) && d.app.equals(data.app)) {
+                            d.data.count += data.data.count;
+                            if (d.data.count > 5)
+                                d.data.count = 5;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        datas.add(data);
+                        timestamps.add(last);
+                        tags.add(tag);
                     }
                 }
-                if (!found) {
-                    datas.add(data);
-                    timestamps.add(last);
-                }
+                last = entry.getTimeMillis();
+                entry = dbm.getNextEntry(tag, last);
             }
-            last = entry.getTimeMillis();
-            entry = dbm.getNextEntry(tag, last);
         }
 
         IDropboxService service = getReportService(Util.getURL());
@@ -146,15 +148,15 @@ public class DropboxUploadingJob extends Job {
         );
 
         // save where to upload next time.
-        Util.setLastEntryTimestamp(tag, last);
+        Util.setLastEntryTimestamp(last);
 
         //check whether to report full dropbox entry content and log
         if (shouldReportDetail()) {
             for (int i = 0; i < results.data.length; i++) {
                 ReportDatas.Result result = results.data[i];
                 ReportDatas.Entry data = datas.get(i);
-                if (result.dropbox_id != null && result.dropbox_id.length() > 0) {
-                    entry = dbm.getNextEntry(tag, timestamps.get(i));
+                if (result != null && result.dropbox_id != null && result.dropbox_id.length() > 0) {
+                    DropBoxManager.Entry entry = dbm.getNextEntry(tags.get(i), timestamps.get(i));
                     JsonObject content = new JsonObject();
                     content.add("content", new JsonPrimitive(convertStreamToString(entry.getInputStream())));
                     service.updateContent(
@@ -167,7 +169,7 @@ public class DropboxUploadingJob extends Job {
             IDropboxService uploadService = getReportService(Util.getUploadURL());
             for (int i = 0; i < results.data.length; i++) {
                 ReportDatas.Result result = results.data[i];
-                if (result.dropbox_id != null && result.dropbox_id.length() > 0) { // server received the data
+                if (result != null &&  result.dropbox_id != null && result.dropbox_id.length() > 0) { // server received the data
                     // upload attachment
                     ReportDatas.Entry data = datas.get(i);
                     if (data.data.log != null && data.data.log.length() > 0 && (data.data.log.endsWith(".gz") || data.data.log.endsWith(".zip"))) {
@@ -210,8 +212,8 @@ public class DropboxUploadingJob extends Job {
             data.occurred_at = timestamp;
             data.tag = entry.getTag();
             String digest = entry.getText(MAX_DIG_LEN);
-            data.app = processName(tag, digest);
-            data.data.log = logPath(tag, digest);
+            data.app = processName(entry.getTag(), digest);
+            data.data.log = logPath(entry.getTag(), digest);
         }
         return data;
     }

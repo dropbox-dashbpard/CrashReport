@@ -33,14 +33,11 @@ import com.path.android.jobqueue.JobManager;
 
 import org.tecrash.crashreport.util.Util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by xiaocong on 2014/11/21.
  */
 public class DropboxMessageReceiver extends BroadcastReceiver {
-    static private Map<String, Long> lastTimestamps = new HashMap<String, Long>();
+    static private long lastTimestamp = 0L;
     private JobManager jobManager;
 
     public DropboxMessageReceiver() {
@@ -50,20 +47,24 @@ public class DropboxMessageReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
+        if (!Util.isEnabled())  // report disabled
+            return;
+
         if (DropBoxManager.ACTION_DROPBOX_ENTRY_ADDED.equals(action)) {
-            String tag = intent.getStringExtra(DropBoxManager.EXTRA_TAG);
             long timestamp = intent.getLongExtra(DropBoxManager.EXTRA_TIME, -1);
-            if (timestamp != -1 && shouldReport(tag)) {
-                if (lastTimestamps.containsKey(tag) && System.currentTimeMillis() - lastTimestamps.get(tag) < Util.getMaxDelayTimes()) {
-                    return;
-                }
-                lastTimestamps.put(tag, Long.valueOf(System.currentTimeMillis()));
-                jobManager.addJob(new DropboxUploadingJob(tag, timestamp, Build.VERSION.INCREMENTAL));
-            }
+            if (Util.getTags().containsKey(intent.getStringExtra(DropBoxManager.EXTRA_TAG)) && timestamp != -1)
+                addDropboxJob(timestamp);
+        } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+            addDropboxJob(System.currentTimeMillis());
         }
     }
 
-    private boolean shouldReport(String tag) {
-        return Util.isEnabled() && Util.getTags().containsKey(tag);
+    private void addDropboxJob(long timestamp) {
+        if (lastTimestamp > 0 && System.currentTimeMillis() - lastTimestamp < Util.getMaxDelayTimes()) {
+            //already have a job on the queue, so return
+            return;
+        }
+        lastTimestamp = System.currentTimeMillis();
+        jobManager.addJob(new DropboxUploadingJob(timestamp, Build.VERSION.INCREMENTAL));
     }
 }

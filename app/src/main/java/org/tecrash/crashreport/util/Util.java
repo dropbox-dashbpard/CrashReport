@@ -211,24 +211,24 @@ public class Util {
         }
     }
 
-    public static long getLastEntryTimestamp(String tag) {
+    public static long getLastEntryTimestamp() {
         Context app = ReportApp.getInstance();
-        long ts = PreferenceManager.getDefaultSharedPreferences(app).getLong(preferenceKeyOfTag(tag), System.currentTimeMillis() - 1000 * 3600 * 24 * 2);
+        long ts = PreferenceManager.getDefaultSharedPreferences(app).getLong(preferenceKey(), System.currentTimeMillis() - 1000 * 3600 * 24 * 2);
         if (ts > System.currentTimeMillis())
             ts = System.currentTimeMillis();
         return ts;
     }
 
-    public static void setLastEntryTimestamp(String tag, long timestamp) {
+    public static void setLastEntryTimestamp(long timestamp) {
         Context app = ReportApp.getInstance();
         PreferenceManager.getDefaultSharedPreferences(app)
                 .edit()
-                .putLong(preferenceKeyOfTag(tag), timestamp)
+                .putLong(preferenceKey(), timestamp)
                 .commit();
     }
 
-    private static String preferenceKeyOfTag(String tag) {
-        return String.format("last_entry_timestamp_of_%s", tag);
+    private static String preferenceKey() {
+        return "last_entry_timestamp";
     }
 
     public static boolean isEnabled() {

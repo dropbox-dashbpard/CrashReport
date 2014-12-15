@@ -36,7 +36,7 @@ def getProdVersionName() {
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.1.2"
     lintOptions {
         abortOnError false
     }
@@ -49,7 +49,7 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -60,7 +60,7 @@ android {
             applicationId 'com.xinqitec.crashreport'
         }
         dev {
-            applicationId 'org.tecrash.crashreport.development'
+            applicationId 'org.dev'
             versionCode getProdVersionCode()
             versionName getProdVersionName()
         }
@@ -69,7 +69,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:21.0.0'
+    compile 'com.android.support:support-v4:21.0.3'
     compile 'com.path:android-priority-jobqueue:1.1.2'
     compile 'com.squareup.retrofit:retrofit:1.6.1'
     compile 'com.squareup.okhttp:okhttp:2.0.0'
