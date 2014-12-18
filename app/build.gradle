@@ -41,6 +41,7 @@ android {
         abortOnError false
     }
     defaultConfig {
+        useJack = true
         applicationId "org.tecrash.crashreport"
         minSdkVersion 14
         targetSdkVersion 21
