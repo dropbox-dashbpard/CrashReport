@@ -205,7 +205,7 @@ public class Util {
         Context app = ReportApp.getInstance();
         String days = PreferenceManager.getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_key_days_to_upload_log), "90");
         try {
-            return Long.valueOf(days);
+            return Long.parseLong(days);
         } catch (NumberFormatException e) {
             return 30L;
         }

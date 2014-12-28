@@ -67,6 +67,7 @@ import retrofit.client.OkClient;
 import retrofit.mime.TypedFile;
 
 public class DropboxUploadingJob extends Job {
+    static final long serialVersionUID = 0x2F3C0888L;
     static final int MAX_DIG_LEN = 2 * 1024;
     static Logger logger = Logger.getLogger();
     private long timestamp;

@@ -38,7 +38,7 @@
     <string-array name="pref_key_url_list_values">
         <item></item>
         <item>http://cr.ota.xinqitec.com/api/0</item>
-        <item>http://cr.ota.xinqitec.com/api/0</item>
+        <item>http://192.168.1.105:9000/api/0</item>
     </string-array>
 
     <string name="pref_key_days_to_upload_log">pref_key_days_to_upload_log</string>
