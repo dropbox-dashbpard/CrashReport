@@ -8,8 +8,8 @@
         <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle/gradle-2.2.1" />
         <option name="modules">
           <set>
-            <option value="/Volumes/github/CrashReport" />
-            <option value="/Volumes/github/CrashReport/app" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -21,47 +21,15 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.tecrash.crashreport.util;
-
-import android.os.Build;
-import android.util.Log;
-
-import com.path.android.jobqueue.log.CustomLogger;
+package org.tecrash.crashreport.data;
 
 /**
- * Created by xiaocong on 14-11-21.
+ * Created by xiaocong on 29/12/14.
  */
-public class Logger implements CustomLogger {
-    private static final String TAG = "CrashReport";
-    private static Logger logger;
+public class ContentData {
+    String content;
 
-    public static Logger getLogger() {
-        if (logger == null) {
-            logger = new Logger();
-        }
-
-        return logger;
+    public ContentData(String content) {
+        this.content = content;
     }
-
-    @Override
-    public boolean isDebugEnabled() {
-        return !Build.TYPE.equals("user");
-    }
-
-    @Override
-    public void d(String text, Object... args) {
-        if (isDebugEnabled())
-            Log.d(TAG, String.format(text, args));
-    }
-
-    @Override
-    public void e(Throwable t, String text, Object... args) {
-        Log.e(TAG, String.format(text, args), t);
-    }
-
-    @Override
-    public void e(String text, Object... args) {
-        Log.e(TAG, String.format(text, args));
-    }
-
 }

@@ -28,13 +28,12 @@ import android.os.Build;
 import android.os.DropBoxManager;
 import android.os.SystemClock;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.path.android.jobqueue.Job;
 import com.path.android.jobqueue.Params;
 import com.squareup.okhttp.OkHttpClient;
 
 import org.tecrash.crashreport.api.IDropboxService;
+import org.tecrash.crashreport.data.ContentData;
 import org.tecrash.crashreport.data.ReportDatas;
 import org.tecrash.crashreport.util.Logger;
 import org.tecrash.crashreport.util.Util;
@@ -68,8 +67,8 @@ import retrofit.mime.TypedFile;
 
 public class DropboxUploadingJob extends Job {
     static final long serialVersionUID = 0x2F3C0888L;
-    static final int MAX_DIG_LEN = 2 * 1024;
-    static Logger logger = Logger.getLogger();
+    private static final int MAX_DIG_LEN = 2 * 1024;
+    private static Logger logger = Logger.getLogger();
     private long timestamp;
     private String incremental;
 
@@ -158,12 +157,10 @@ public class DropboxUploadingJob extends Job {
                 ReportDatas.Entry data = datas.get(i);
                 if (result != null && result.dropbox_id != null && result.dropbox_id.length() > 0) {
                     DropBoxManager.Entry entry = dbm.getNextEntry(tags.get(i), timestamps.get(i));
-                    JsonObject content = new JsonObject();
-                    content.add("content", new JsonPrimitive(convertStreamToString(entry.getInputStream())));
                     service.updateContent(
                             Util.getKey(),
                             result.dropbox_id,
-                            content
+                            new ContentData(convertStreamToString(entry.getInputStream()))
                     );
                 }
             }
@@ -246,7 +243,7 @@ public class DropboxUploadingJob extends Job {
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append(line);
-                sb.append(System.getProperty("line.separator"));
+                sb.append("\\n");
             }
         } catch (IOException e) {
         } finally {

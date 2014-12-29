@@ -48,12 +48,12 @@ import java.util.regex.Pattern;
  */
 public class Util {
 
-    final static String LOG_REG = "Log:\\s+([\\w\\-\\./:$#\\(\\)]+)";
-    final static Pattern LOG_PATTERN = Pattern.compile(LOG_REG);
-    final static String PROCESS_REG = "Process:\\s+([\\w\\-\\./:$#\\(\\)]+)";
-    final static Pattern PROCESS_PATTERN = Pattern.compile(PROCESS_REG);
-    final static String TOMBSTONE_REG = "pid:\\s*\\d+,\\s*tid:\\s*\\d+,\\s*name:.+?>>>\\s+([\\w\\-\\./:$#\\(\\)]+)\\s+<<<";
-    final static Pattern TOMBSTONE_PATTERN = Pattern.compile(TOMBSTONE_REG);
+    private final static String LOG_REG = "Log:\\s+([\\w\\-\\./:$#\\(\\)]+)";
+    private final static Pattern LOG_PATTERN = Pattern.compile(LOG_REG);
+    private final static String PROCESS_REG = "Process:\\s+([\\w\\-\\./:$#\\(\\)]+)";
+    private final static Pattern PROCESS_PATTERN = Pattern.compile(PROCESS_REG);
+    private final static String TOMBSTONE_REG = "pid:\\s*\\d+,\\s*tid:\\s*\\d+,\\s*name:.+?>>>\\s+([\\w\\-\\./:$#\\(\\)]+)\\s+<<<";
+    private final static Pattern TOMBSTONE_PATTERN = Pattern.compile(TOMBSTONE_REG);
 
     static Map<String, IProcess> tags = new HashMap<String, IProcess>();
     static int MAX_LINES = 30;

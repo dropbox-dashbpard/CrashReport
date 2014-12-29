@@ -25,6 +25,7 @@ package org.tecrash.crashreport.api;
 
 import com.google.gson.JsonObject;
 
+import org.tecrash.crashreport.data.ContentData;
 import org.tecrash.crashreport.data.ReportDatas;
 
 import retrofit.http.Body;
@@ -49,7 +50,7 @@ public interface IDropboxService {
     JsonObject updateContent(
             @Header("Authorization") String nsKey,
             @Path("dropbox_id") String dbId,
-            @Body JsonObject content
+            @Body ContentData content
     );
 
     @Multipart
