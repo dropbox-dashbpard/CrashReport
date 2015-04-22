@@ -31,9 +31,10 @@ import android.os.SystemClock;
 import com.path.android.jobqueue.Job;
 import com.path.android.jobqueue.Params;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
 
 import org.tecrash.crashreport.api.IDropboxService;
-import org.tecrash.crashreport.data.ContentData;
 import org.tecrash.crashreport.data.ReportDatas;
 import org.tecrash.crashreport.util.Logger;
 import org.tecrash.crashreport.util.Util;
@@ -157,11 +158,16 @@ public class DropboxUploadingJob extends Job {
                 ReportDatas.Entry data = datas.get(i);
                 if (result != null && result.dropbox_id != null && result.dropbox_id.length() > 0) {
                     DropBoxManager.Entry entry = dbm.getNextEntry(tags.get(i), timestamps.get(i));
-                    service.updateContent(
-                            Util.getKey(),
-                            result.dropbox_id,
-                            new ContentData(convertStreamToString(entry.getInputStream()))
-                    );
+                    // use okhttp to gzip content
+                    OkHttpClient client = new OkHttpClient();
+                    client.networkInterceptors().add(new GzipRequestInterceptor());
+                    RequestBody requestBody = new StreamRequestBody(entry.getInputStream());
+                    Request request = new Request.Builder()
+                            .url(Util.getURL() + "/dropbox/" + result.dropbox_id + "/content")
+                            .header("Authorization", Util.getKey())
+                            .post(requestBody)
+                            .build();
+                    client.newCall(request).execute();
                 }
             }
             IDropboxService uploadService = getReportService(Util.getUploadURL());
@@ -243,7 +249,7 @@ public class DropboxUploadingJob extends Job {
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append(line);
-                sb.append("\\n");
+                sb.append("\n");
             }
         } catch (IOException e) {
         } finally {
@@ -269,6 +275,7 @@ public class DropboxUploadingJob extends Job {
 
     private OkHttpClient getClient() {
         OkHttpClient client = new OkHttpClient();
+//        client.networkInterceptors().add(new GzipRequestInterceptor());
         client.setHostnameVerifier(new HostnameVerifier() {
             @Override
             public boolean verify(String s, SSLSession sslSession) {
