@@ -213,7 +213,7 @@ public class DropboxUploadingJob extends Job {
         ReportDatas.Entry data = null;
         if ((entry.getFlags() & DropBoxManager.IS_TEXT) != 0) {
             data = new ReportDatas.Entry();
-            data.occurred_at = timestamp;
+            data.occurred_at = entry.getTimeMillis();
             data.tag = entry.getTag();
             String digest = entry.getText(MAX_DIG_LEN);
             data.app = processName(entry.getTag(), digest);
