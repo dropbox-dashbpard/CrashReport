@@ -1,0 +1,5 @@
+# configuration for meta data in AndroidManifest.xml
+dropbox.appkey=official-appkey
+dropbox.devkey=dev-key
+dropbox.report.url=http://official.com/api/0
+dropbox.report.devurl=http://dev.com/api/0

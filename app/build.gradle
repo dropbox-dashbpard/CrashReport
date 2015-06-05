@@ -35,19 +35,18 @@ def getProdVersionName() {
 }
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+properties.load(project.rootProject.file('config.properties').newDataInputStream())
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
     lintOptions {
         abortOnError false
     }
     defaultConfig {
-        useJack = true
         applicationId "org.tecrash.crashreport"
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         manifestPlaceholders = [
@@ -82,8 +81,8 @@ dependencies {
     compile 'com.android.support:support-v4:22.1.1'
     compile 'com.path:android-priority-jobqueue:1.1.2'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
-    compile 'com.squareup.okhttp:okhttp:2.3.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.3.0'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
 }
 
 apply plugin: 'findbugs'
