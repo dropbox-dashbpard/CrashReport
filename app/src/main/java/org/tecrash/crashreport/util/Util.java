@@ -29,8 +29,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
-import org.tecrash.crashreport.ReportApp;
 import org.tecrash.crashreport.R;
+import org.tecrash.crashreport.ReportApp;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -208,12 +208,12 @@ public class Util {
 
     public static String getURL() {
         Context app = ReportApp.getInstance();
-        String url = PreferenceManager.getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_key_url), "");
-        if (url.equals("")) {
+        String urlKey = PreferenceManager.getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_key_url), "");
+        if ("".equals(urlKey)) {
             String[] urls = ReportApp.getInstance().getResources().getStringArray(R.array.pref_key_url_list_values);
-            url = isDevelopment() ? urls[2] : urls[1];
+            urlKey = isDevelopment() ? urls[2] : urls[1];
         }
-        return url;
+        return app.getApplicationInfo().metaData.getString(urlKey);
     }
 
     public static long getDismissDays() {
@@ -324,11 +324,15 @@ public class Util {
         return prop == null ? null : prop.trim();
     }
 
+    private static String _key = null;
     public static String getKey() {
-        if (isDevelopment())
-            return "Bearer 068772F3-8130-44C0-ADBB-511C68DA2888"; // dev key
-        else
-            return "Bearer 3A9A34CF-12CD-4A56-B18D-71D9FD3654BD"; // official key
+        if (_key == null) {
+            if (isDevelopment())
+                _key =  "Bearer " + ReportApp.getInstance().getApplicationInfo().metaData.getString("DROPBOX_DEVKEY");
+            else
+                _key =  "Bearer " + ReportApp.getInstance().getApplicationInfo().metaData.getString("DROPBOX_APPKEY");
+        }
+        return _key;
     }
 
     public static String getUserAgent() {

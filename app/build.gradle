@@ -34,6 +34,9 @@ def getProdVersionName() {
     return versionName
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
@@ -47,6 +50,12 @@ android {
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
+        manifestPlaceholders = [
+            DROPBOX_APPKEY: properties.getProperty("dropbox.appkey"),
+            DROPBOX_DEVKEY: properties.getProperty("dropbox.devkey"),
+            DROPBOX_REPORT_URL: properties.getProperty("dropbox.report.url"),
+            DROPBOX_REPORT_DEVURL: properties.getProperty("dropbox.report.devurl")
+        ]
     }
     buildTypes {
         release {
