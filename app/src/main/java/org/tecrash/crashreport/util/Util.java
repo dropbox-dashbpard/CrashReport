@@ -99,6 +99,17 @@ public class Util {
 
     public static Map<String, IProcess> getTags() {
         if (tags.isEmpty()) {
+            IProcess battery = new IProcess() {
+                @Override
+                public String getProcessName(String tag, String log) {
+                    return "battery";
+                }
+
+                @Override
+                public String getLogPath(String tag, String log) {
+                    return parseLogPath(log);
+                }
+            };
             IProcess ss = new IProcess() {
                 @Override
                 public String getProcessName(String tag, String log) {
@@ -171,11 +182,15 @@ public class Util {
             tags.put("SYSTEM_TOMBSTONE", tombstone);
             tags.put("system_server_lowmem", ss);
             tags.put("system_server_watchdog", ss);
+            tags.put("system_server_wtf", ss);
             tags.put("system_app_crash", app);
             tags.put("data_app_crash", app);
             tags.put("system_app_anr", app);
             tags.put("data_app_anr", app);
             tags.put("system_app_wtf", app);
+            tags.put("BATTERY_DISCHARGE_INFO", battery);
+            tags.put("SYSTEM_FSCK", kernel);
+            tags.put("SYSTEM_AUDIT", kernel);
             tags.put("SYSTEM_LAST_KMSG", kernel);
             tags.put("APANIC_CONSOLE", kernel);
             tags.put("APANIC_THREADS", kernel);

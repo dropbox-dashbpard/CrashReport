@@ -39,13 +39,8 @@ import org.tecrash.crashreport.data.ReportDatas;
 import org.tecrash.crashreport.util.Logger;
 import org.tecrash.crashreport.util.Util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -236,30 +231,30 @@ public class DropboxUploadingJob extends Job {
         return false;
     }
 
-    /**
-     * inputstream to string utf-8编码
-     */
-    private String convertStreamToString(InputStream is)
-            throws UnsupportedEncodingException {
-        BufferedInputStream bis = new BufferedInputStream(is);
-        InputStreamReader inputStreamReader = new InputStreamReader(bis, "utf-8");
-        BufferedReader br = new BufferedReader(inputStreamReader);
-        StringBuilder sb = new StringBuilder();
-        try {
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-                sb.append("\n");
-            }
-        } catch (IOException e) {
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-            }
-        }
-        return sb.toString();
-    }
+//    /**
+//     * inputstream to string utf-8编码
+//     */
+//    private String convertStreamToString(InputStream is)
+//            throws UnsupportedEncodingException {
+//        BufferedInputStream bis = new BufferedInputStream(is);
+//        InputStreamReader inputStreamReader = new InputStreamReader(bis, "utf-8");
+//        BufferedReader br = new BufferedReader(inputStreamReader);
+//        StringBuilder sb = new StringBuilder();
+//        try {
+//            String line;
+//            while ((line = br.readLine()) != null) {
+//                sb.append(line);
+//                sb.append("\n");
+//            }
+//        } catch (IOException e) {
+//        } finally {
+//            try {
+//                is.close();
+//            } catch (IOException e) {
+//            }
+//        }
+//        return sb.toString();
+//    }
 
     private String processName(String tag, String content) {
         if (Util.getTags().containsKey(tag))
