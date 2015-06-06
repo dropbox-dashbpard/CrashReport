@@ -37,8 +37,8 @@
     </string-array>
     <string-array name="pref_key_url_list_values">
         <item></item>
-        <item>http://cr.ota.xinqitec.com/api/0</item>
-        <item>http://192.168.1.158:9000/api/0</item>
+        <item>DROPBOX_REPORT_URL</item>
+        <item>DROPBOX_REPORT_DEVURL</item>
     </string-array>
 
     <string name="pref_key_days_to_upload_log">pref_key_days_to_upload_log</string>

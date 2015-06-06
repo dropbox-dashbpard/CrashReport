@@ -6,8 +6,6 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.tecrash.crashreport.util.Util;
-
 import java.io.IOException;
 
 import okio.Buffer;
