@@ -23,14 +23,17 @@
 
 package org.tecrash.crashreport.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 
-import org.tecrash.crashreport.R;
 import org.tecrash.crashreport.ReportApp;
+import org.tecrash.crashreport.R;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -42,6 +45,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import android.telephony.TelephonyManager;
 
 /**
  * Created by xiaocong on 21/11/14.
@@ -206,6 +210,7 @@ public class Util {
         return getURL().replaceFirst("https", "http");
     }
 
+    @SuppressLint("NewApi")
     public static String getURL() {
         Context app = ReportApp.getInstance();
         String urlKey = PreferenceManager.getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_key_url), "");
@@ -213,7 +218,17 @@ public class Util {
             String[] urls = ReportApp.getInstance().getResources().getStringArray(R.array.pref_key_url_list_values);
             urlKey = isDevelopment() ? urls[2] : urls[1];
         }
-        return app.getApplicationInfo().metaData.getString(urlKey);
+        try {
+            return app.getPackageManager().getApplicationInfo(app.getPackageName(), PackageManager.GET_META_DATA).metaData.getString(urlKey);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
+        /*
+        * "app.getApplicationInfo().metaData" throw nullpointer exception in prod version
+        * and works well in dev version with unkown reason,
+        * so change to "app.getPackageManager().getApplicationInfo(app.getPackageName(), PackageManager.GET_META_DATA)"
+        */
+        //return app.getApplicationInfo().metaData.getString(urlKey);
     }
 
     public static long getDismissDays() {
@@ -326,11 +341,16 @@ public class Util {
 
     private static String _key = null;
     public static String getKey() {
-        if (_key == null) {
-            if (isDevelopment())
-                _key =  "Bearer " + ReportApp.getInstance().getApplicationInfo().metaData.getString("DROPBOX_DEVKEY");
-            else
-                _key =  "Bearer " + ReportApp.getInstance().getApplicationInfo().metaData.getString("DROPBOX_APPKEY");
+        try {
+            ApplicationInfo appInfo= ReportApp.getInstance().getPackageManager().getApplicationInfo(ReportApp.getInstance().getPackageName(), PackageManager.GET_META_DATA);
+            if (_key == null&&appInfo!=null) {
+                if (isDevelopment())
+                    _key =  "Bearer " + appInfo.metaData.getString("DROPBOX_DEVKEY");
+                else
+                    _key =  "Bearer " + appInfo.metaData.getString("DROPBOX_APPKEY");
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
         return _key;
     }
@@ -350,7 +370,7 @@ public class Util {
             String language = Locale.getDefault().toString();
 
             UA = String.format(
-                    "sdk_int=%1$s;app_version=%2$s;lang=%3$s;manufacturer=%4$s;model=%5$s;brand=%6$s;board=%7$s;device=%8$s;product=%9$s;incremental=%10$s;sn=%11$s;mac_address=%12$s;build_id=%13$s;app_name=%14$s",
+                    "sdk_int=%1$s;app_version=%2$s;lang=%3$s;manufacturer=%4$s;model=%5$s;brand=%6$s;board=%7$s;device=%8$s;product=%9$s;incremental=%10$s;sn=%11$s;mac_address=%12$s;build_id=%13$s;app_name=%14$s;imei=%15$s",
                     Build.VERSION.SDK_INT,
                     versionCode,
                     language,
@@ -364,11 +384,21 @@ public class Util {
                     getSerialNo(),
                     getWifiMacAddress(),
                     Build.ID,
-                    appName
+                    appName,
+					getIMEI()
             );
         }
 
         return UA;
+    }
+
+    public static String getIMEI(){
+        Context app = ReportApp.getInstance();
+        TelephonyManager tm = (TelephonyManager) app.getSystemService(Context.TELEPHONY_SERVICE);
+        if(tm.getDeviceId()==null||tm.getDeviceId().isEmpty()){
+            return "0";
+        }
+        return tm.getDeviceId();
     }
 
     public interface IProcess {
