@@ -218,11 +218,7 @@ public class Util {
             String[] urls = ReportApp.getInstance().getResources().getStringArray(R.array.pref_key_url_list_values);
             urlKey = isDevelopment() ? urls[2] : urls[1];
         }
-        try {
-            return app.getPackageManager().getApplicationInfo(app.getPackageName(), PackageManager.GET_META_DATA).metaData.getString(urlKey);
-        } catch (PackageManager.NameNotFoundException e) {
-            return null;
-        }
+        return getmetaDataString(urlKey);
         /*
         * "app.getApplicationInfo().metaData" throw nullpointer exception in prod version
         * and works well in dev version with unkown reason,
@@ -341,18 +337,28 @@ public class Util {
 
     private static String _key = null;
     public static String getKey() {
-        try {
-            ApplicationInfo appInfo= ReportApp.getInstance().getPackageManager().getApplicationInfo(ReportApp.getInstance().getPackageName(), PackageManager.GET_META_DATA);
-            if (_key == null&&appInfo!=null) {
-                if (isDevelopment())
-                    _key =  "Bearer " + appInfo.metaData.getString("DROPBOX_DEVKEY");
-                else
-                    _key =  "Bearer " + appInfo.metaData.getString("DROPBOX_APPKEY");
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+        if (_key == null) {
+            if (isDevelopment())
+                _key =  "Bearer " + getmetaDataString("DROPBOX_DEVKEY");
+            else
+                _key =  "Bearer " + getmetaDataString("DROPBOX_APPKEY");
         }
         return _key;
+    }
+    
+    public static String getmetaDataString(String key){
+        String valueString = null;
+        Context app = ReportApp.getInstance();
+        try {
+            ApplicationInfo appInfo = app.getPackageManager().getApplicationInfo(ReportApp.getInstance().getPackageName(), PackageManager.GET_META_DATA);
+            if(appInfo!=null){
+                valueString = appInfo.metaData.getString(key);
+            }
+        }
+        catch (PackageManager.NameNotFoundException e){
+            e.printStackTrace();
+        }
+        return valueString;
     }
 
     public static String getUserAgent() {
