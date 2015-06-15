@@ -46,6 +46,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -92,11 +93,12 @@ public class DropboxUploadingJob extends Job {
             long bootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
             if (bootTime > last)
                 last = bootTime;
+                Util.setLastEntryTimestamp(last);
         }
-        if (last >= timestamp) {
-            logger.d("Cancelled as it was reported before!");
-            return;
-        }
+//        if (last >= timestamp) {
+//            logger.d("Cancelled as it was reported before!");
+//            return;
+//        }
         if (!Util.isEnabled()) {
             logger.d("Disabled so cancel it!");
             Util.setLastEntryTimestamp(last);
@@ -107,6 +109,7 @@ public class DropboxUploadingJob extends Job {
         List<ReportDatas.Entry> datas = new ArrayList<ReportDatas.Entry>();
         List<Long> timestamps = new ArrayList<Long>();
         List<String> tags = new ArrayList<String>();
+        List<Long> entryTimestamps = new ArrayList<Long>();
 
         for (String tag: Util.getTags().keySet()) {
             DropBoxManager.Entry entry = dbm.getNextEntry(tag, last);
@@ -130,19 +133,23 @@ public class DropboxUploadingJob extends Job {
                     }
                 }
                 last = entry.getTimeMillis();
+                entryTimestamps.add(last);
                 entry = dbm.getNextEntry(tag, last);
             }
+            //set back to last saved, for next tag
+            last=Util.getLastEntryTimestamp();
         }
 
         IDropboxService service = getReportService(Util.getURL());
 
         // report dropbox entries
-        ReportDatas.ReportResults results = service.report(
-                Util.getKey(),
-                Util.getUserAgent(),
-                new ReportDatas(datas)
-        );
+        ReportDatas.ReportResults results = service.report(Util.getKey(), Util.getUserAgent(), new ReportDatas(datas));
 
+        //set the latest entry's timestamp as last
+        if(!entryTimestamps.isEmpty()) {
+            Collections.sort(entryTimestamps);
+            last = entryTimestamps.get(entryTimestamps.size()-1);
+        }
         // save where to upload next time.
         Util.setLastEntryTimestamp(last);
 
