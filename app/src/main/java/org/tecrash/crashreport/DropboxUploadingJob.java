@@ -91,9 +91,10 @@ public class DropboxUploadingJob extends Job {
         if (!Build.VERSION.INCREMENTAL.equals(incremental)) {
             // 升级前的drpbox entry，那本次开机前的都舍弃掉
             long bootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
-            if (bootTime > last)
+            if (bootTime > last){
                 last = bootTime;
                 Util.setLastEntryTimestamp(last);
+            }
         }
 //        if (last >= timestamp) {
 //            logger.d("Cancelled as it was reported before!");
@@ -135,10 +136,6 @@ public class DropboxUploadingJob extends Job {
                 last = entry.getTimeMillis();
                 entryTimestamps.add(last);
                 entry = dbm.getNextEntry(tag, last);
-                //set back to last saved, for next tag.
-                if(entry==null){
-                    last=Util.getLastEntryTimestamp();
-                }
             }
             //set back to last saved, for next tag
             last=Util.getLastEntryTimestamp();
