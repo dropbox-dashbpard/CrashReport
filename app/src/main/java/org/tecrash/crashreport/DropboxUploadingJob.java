@@ -135,6 +135,10 @@ public class DropboxUploadingJob extends Job {
                 last = entry.getTimeMillis();
                 entryTimestamps.add(last);
                 entry = dbm.getNextEntry(tag, last);
+                //set back to last saved, for next tag.
+                if(entry==null){
+                    last=Util.getLastEntryTimestamp();
+                }
             }
             //set back to last saved, for next tag
             last=Util.getLastEntryTimestamp();
