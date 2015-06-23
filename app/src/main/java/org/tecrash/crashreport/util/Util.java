@@ -23,12 +23,12 @@
 
 package org.tecrash.crashreport.util;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 
@@ -210,7 +210,6 @@ public class Util {
         return getURL().replaceFirst("https", "http");
     }
 
-    @SuppressLint("NewApi")
     public static String getURL() {
         Context app = ReportApp.getInstance();
         String urlKey = PreferenceManager.getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_key_url), "");
@@ -239,7 +238,7 @@ public class Util {
 
     public static long getLastEntryTimestamp() {
         Context app = ReportApp.getInstance();
-        long ts = PreferenceManager.getDefaultSharedPreferences(app).getLong(preferenceKey(), System.currentTimeMillis() - 1000 * 3600 * 24 * 2);
+        long ts = PreferenceManager.getDefaultSharedPreferences(app).getLong(preferenceKey(), System.currentTimeMillis() - SystemClock.elapsedRealtime());
         if (ts > System.currentTimeMillis())
             ts = System.currentTimeMillis();
         return ts;
