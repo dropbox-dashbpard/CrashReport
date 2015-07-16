@@ -56,6 +56,7 @@ public class DropboxMessageReceiver extends BroadcastReceiver {
                 addDropboxJob(timestamp);
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             addDropboxJob(System.currentTimeMillis());
+            startUptimeService();
         }
     }
 
@@ -66,5 +67,11 @@ public class DropboxMessageReceiver extends BroadcastReceiver {
         }
         lastTimestamp = System.currentTimeMillis();
         jobManager.addJob(new DropboxUploadingJob(timestamp, Build.VERSION.INCREMENTAL));
+    }
+
+    private void startUptimeService(){
+        Context context = ReportApp.getInstance();
+        Intent uptimeService = new Intent(context,UptimeAlarmService.class);
+        context.startService(uptimeService);
     }
 }

@@ -259,6 +259,9 @@ public class Util {
     public static boolean isEnabled() {
         Context app = ReportApp.getInstance();
         return PreferenceManager.getDefaultSharedPreferences(app).getBoolean(app.getString(R.string.pref_key_on), true);
+	}
+    public static long getUptimesInterval(){
+        return Build.TYPE.equals("user")? 1000 * 60 * 60 * 24 : 1000 * 60 * 60 * 24;
     }
 
     public static long getMaxDelayTimes() {
