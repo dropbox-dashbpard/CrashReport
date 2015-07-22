@@ -32,13 +32,16 @@ import java.util.List;
  */
 public class ReportDatas {
     public Entry data[];
+    public long uptime;
 
     public ReportDatas(Entry data) {
+        this.uptime = SystemClock.elapsedRealtime();
         this.data = new Entry[1];
         this.data[0] = data;
     }
 
     public ReportDatas(List<Entry> list) {
+        this.uptime = SystemClock.elapsedRealtime();
         this.data = new Entry[list.size()];
         list.toArray(this.data);
     }

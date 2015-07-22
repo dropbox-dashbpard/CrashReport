@@ -54,6 +54,7 @@ import retrofit.client.OkClient;
 
 public class UptimeJob extends Job {
     private static Logger logger = Logger.getLogger();
+    private static final int RETRY_LIMIT = 3;
 
     public UptimeJob() {
         super(new Params(100)
@@ -74,7 +75,7 @@ public class UptimeJob extends Job {
             logger.d("Disabled so cancel it!");
             return;
         }
-        logger.d("Update time to server every five days!");
+        logger.d("Update time to server every day!");
         List<ReportDatas.Entry> datas = new ArrayList<ReportDatas.Entry>();
         IDropboxService service = getReportService(Util.getURL());
         // report empty entries
@@ -143,7 +144,11 @@ public class UptimeJob extends Job {
 
     @Override
     protected boolean shouldReRunOnThrowable(Throwable throwable) {
-        return false;
+        return true;
     }
 
+    @Override
+    protected int getRetryLimit() {
+        return RETRY_LIMIT;
+    }
 }
