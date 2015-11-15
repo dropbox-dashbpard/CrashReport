@@ -3,3 +3,9 @@ dropbox.appkey=official-appkey
 dropbox.devkey=dev-key
 dropbox.report.url=http://official.com/api/0
 dropbox.report.devurl=http://dev.com/api/0
+
+# additional properties to be reported
+dropbox.report.properties=field_name=ro.build.xxxx
+
+#application id
+app.id=com.xxxx.crashreport

@@ -56,5 +56,6 @@
         <meta-data android:name="DROPBOX_DEVKEY" android:value="${DROPBOX_DEVKEY}" />
         <meta-data android:name="DROPBOX_REPORT_URL" android:value="${DROPBOX_REPORT_URL}" />
         <meta-data android:name="DROPBOX_REPORT_DEVURL" android:value="${DROPBOX_REPORT_DEVURL}" />
+        <meta-data android:name="DROPBOX_REPORT_PROPERTIES" android:value="${DROPBOX_REPORT_PROPERTIES}" />
     </application>
 </manifest>

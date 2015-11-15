@@ -23,26 +23,39 @@
 
 apply plugin: 'com.android.application'
 
-def getProdVersionCode() {
+def getBuildId() {
+    def buildPropsFile = file('build.properties')
+    def buildProps = new Properties()
+    buildProps.load(new FileInputStream(buildPropsFile))
+
+    def versionCode = 1
+    if (buildProps.getProperty('BUILD_ID')) {
+        versionCode = buildProps.getProperty('BUILD_ID').toInteger() + 1
+    }
+
+    buildProps['BUILD_ID']=versionCode.toString()
+    buildProps.store(buildPropsFile.newWriter(), null)
+
+    return versionCode
+}
+
+def getProdVersionName(buildId) {
     def date = new Date()
-    def version = (date.year - 100) * 10000 + (date.month + 1) * 100 + date.date
-    return version
+    def version = (date.year % 100) * 10000 + (date.month + 1) * 100 + date.date
+    return String.format("%d.%d", version, buildId)
 }
 
-def getProdVersionName() {
-    def versionName = String.format("%s.%d", "1", getProdVersionCode())
-    return versionName
-}
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('config.properties').newDataInputStream())
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
     lintOptions {
         abortOnError false
     }
+
+    def config = new Properties()
+    config.load(file('config.properties').newDataInputStream())
+
     defaultConfig {
         applicationId "org.tecrash.crashreport"
         minSdkVersion 14
@@ -50,39 +63,44 @@ android {
         versionCode 1
         versionName "1.0"
         manifestPlaceholders = [
-            DROPBOX_APPKEY: properties.getProperty("dropbox.appkey"),
-            DROPBOX_DEVKEY: properties.getProperty("dropbox.devkey"),
-            DROPBOX_REPORT_URL: properties.getProperty("dropbox.report.url"),
-            DROPBOX_REPORT_DEVURL: properties.getProperty("dropbox.report.devurl")
+            DROPBOX_APPKEY: config.getProperty("dropbox.appkey"),
+            DROPBOX_DEVKEY: config.getProperty("dropbox.devkey"),
+            DROPBOX_REPORT_URL: config.getProperty("dropbox.report.url"),
+            DROPBOX_REPORT_DEVURL: config.getProperty("dropbox.report.devurl"),
+            DROPBOX_REPORT_PROPERTIES: config.getProperty("dropbox.report.properties")
         ]
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     productFlavors {
+        def buildId = getBuildId()
+
         prod {
-            versionCode getProdVersionCode()
-            versionName getProdVersionName()
-            applicationId 'com.xinqitec.crashreport'
+            applicationId config.getProperty("app.id")
+            versionCode buildId
+            versionName getProdVersionName(buildId)
         }
         dev {
             applicationId 'org.dev'
-            versionCode getProdVersionCode()
-            versionName getProdVersionName()
+            versionCode buildId
+            versionName getProdVersionName(buildId)
         }
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:22.1.1'
+    compile 'com.android.support:support-v4:23.1.1'
     compile 'com.path:android-priority-jobqueue:1.1.2'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.5.0'
 }
 
 apply plugin: 'findbugs'

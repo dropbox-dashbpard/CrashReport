@@ -40,13 +40,13 @@ import retrofit.mime.TypedFile;
  * Created by xiaocong on 21/11/14.
  */
 public interface IDropboxService {
-    @POST("/dropbox")
+    @POST("/api/0/dropbox")
     ReportDatas.ReportResults report(
             @Header("Authorization") String nsKey,
             @Header("X-Dropbox-UA") String ua,
             @Body ReportDatas data);
 
-    @POST("/dropbox/{dropbox_id}/content")
+    @POST("/api/0/dropbox/{dropbox_id}/content")
     JsonObject updateContent(
             @Header("Authorization") String nsKey,
             @Path("dropbox_id") String dbId,
@@ -54,7 +54,7 @@ public interface IDropboxService {
     );
 
     @Multipart
-    @POST("/dropbox/{dropbox_id}/upload")
+    @POST("/api/0/dropbox/{dropbox_id}/upload")
     JsonObject uploadAttachment(
             @Header("Authorization") String nsKey,
             @Path("dropbox_id") String dbId,

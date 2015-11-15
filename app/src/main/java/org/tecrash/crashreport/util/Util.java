@@ -30,10 +30,10 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
+import android.telephony.TelephonyManager;
 
-import org.tecrash.crashreport.ReportApp;
 import org.tecrash.crashreport.R;
+import org.tecrash.crashreport.ReportApp;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -45,7 +45,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import android.telephony.TelephonyManager;
 
 /**
  * Created by xiaocong on 21/11/14.
@@ -395,6 +394,20 @@ public class Util {
                     appName,
                     getIMEI()
             );
+
+            try {
+                String extra = manager.getApplicationInfo(ReportApp.getInstance().getPackageName(), PackageManager.GET_META_DATA).metaData.getString("DROPBOX_REPORT_PROPERTIES", "");
+                if (!extra.isEmpty()) {
+                    for(String prop: extra.split(";")) {
+                        String[] pair = prop.split("=");
+                        if (pair.length == 2) {
+                            UA += ";" + pair[0] + "=" + readProperty(pair[1]);
+                        }
+                    }
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
         }
 
         return UA;
