@@ -166,7 +166,7 @@ public class DropboxUploadingJob extends Job {
                     client.networkInterceptors().add(new GzipRequestInterceptor());
                     RequestBody requestBody = new StreamRequestBody(entry.getInputStream());
                     Request request = new Request.Builder()
-                            .url(Util.getURL() + "/dropbox/" + result.dropbox_id + "/content")
+                            .url(Util.getURL() + "/api/0/dropbox/" + result.dropbox_id + "/content")
                             .header("Authorization", Util.getKey())
                             .post(requestBody)
                             .build();
